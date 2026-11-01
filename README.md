@@ -57,9 +57,13 @@ Exemplo: `admin` gera variações como `adm1n`, `@dm1n`, `4dm1n`, conforme as co
 
 ### 3. Variações de Capitalização
 
-Cada palavra (já com leet aplicado) passa por combinações de letras maiúsculas e minúsculas.
+Cada palavra (já com leet aplicado) passa por variações de maiúsculas e minúsculas. O modo é configurável:
 
-Exemplo: `admin`, `Admin`, `aDmin`, `ADMIN`, entre outras.
+- `realistic` (padrão) — apenas os padrões que as pessoas realmente usam: minúsculo, Primeira maiúscula e TUDO MAIÚSCULO. Mantém a wordlist enxuta e eficaz.
+- `all` — todas as 2^n combinações (`aDmin`, `AdMiN`, etc.). Cresce muito rápido; usar com cautela.
+- `none` — mantém a palavra como está.
+
+Exemplo (realistic): `admin`, `Admin`, `ADMIN`.
 
 ### 4. Sufixos Numéricos
 
@@ -88,18 +92,40 @@ As variações são armazenadas em um `set`, garantindo que apenas valores únic
 
 ### Requisitos
 
-- Python 3.x
+- Python 3.x (apenas biblioteca padrão; sem dependências externas)
 
-### Execução
+### Execução básica
 
 ```bash
-python3 Wordlist.py palavras.txt > wordlist.txt
+python3 Wordlist.py palavras.txt -o wordlist.txt
 ```
 
-Onde:
+Onde `palavras.txt` é o arquivo de entrada (uma palavra-base por linha) e `wordlist.txt` é a wordlist gerada. Sem `-o`, a saída vai para o `stdout` e pode ser redirecionada com `>`.
 
-- `palavras.txt` — arquivo de entrada (uma palavra-base por linha)
-- `wordlist.txt` — wordlist gerada
+### Opções (flags)
+
+| Flag | Função |
+|---|---|
+| `-o`, `--output` | Arquivo de saída (padrão: stdout) |
+| `--max N` | Limita a geração a N senhas (0 = sem limite) |
+| `--leet` / `--no-leet` | Ativa/desativa substituições leet (padrão: ativo) |
+| `--numbers` / `--no-numbers` | Ativa/desativa sufixos numéricos (padrão: ativo) |
+| `--symbols` / `--no-symbols` | Ativa/desativa sufixos de símbolos (padrão: ativo) |
+| `--case {realistic,all,none}` | Modo de capitalização (padrão: realistic) |
+| `-h`, `--help` | Exibe a ajuda |
+
+### Exemplos
+
+```bash
+# Apenas leet e números, limitado a 100 mil senhas
+python3 Wordlist.py palavras.txt --no-symbols --max 100000 -o wl.txt
+
+# Sem leet, mantendo a capitalização original
+python3 Wordlist.py palavras.txt --no-leet --case none
+
+# Ver todas as opções
+python3 Wordlist.py --help
+```
 
 ### Tornar executável (opcional)
 
@@ -116,25 +142,20 @@ chmod +x Wordlist.py
 
 ---
 
-## Limitações Conhecidas
+## Observações de Desempenho
 
-As limitações abaixo são intencionais — o foco é o aprendizado, não a eficiência.
-
-- Crescimento exponencial muito rápido do número de combinações
-- Alto consumo de CPU e memória com palavras longas
-- Sem limite configurável de geração
-- Sem argumentos de linha de comando avançados
+- O número de combinações cresce de forma exponencial. Com `--case all` e todos os módulos ativos, uma única palavra pode gerar milhões de variações.
+- Por isso o modo de capitalização padrão é `realistic` e existe a flag `--max`, que permite limitar a geração.
+- Recomenda-se ativar apenas os módulos necessários (`--no-leet`, `--no-symbols`, etc.) para manter a wordlist focada e eficiente.
 
 ---
 
 ## Sugestões de Melhoria (exercícios)
 
-- Adicionar argumentos de CLI com `argparse`
-- Permitir ativar/desativar módulos (leet, números, símbolos)
-- Definir limite máximo de geração
 - Suporte a prefixos, além de sufixos
-- Escrita direta em arquivo com controle de buffer
+- Regras de transformação configuráveis por arquivo (estilo Hashcat rules)
 - Uso de `multiprocessing` para estudo de paralelismo
+- Estimativa de tamanho antes de gerar
 
 ---
 
